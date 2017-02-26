@@ -47,11 +47,14 @@ if not float('.'.join(MONGO_DB_VERSION.split('.')[:-1])) >= 2.2:
         '''
     )
 
-DB_COLLECTION = MONGO_CLIENT[MONGO_SESSIONS_COLLECTION]
 
-MONGO_SESSIONS_INDEXES = DB_COLLECTION.index_information()
+# create sessions collection if needed
+if MONGO_SESSIONS_COLLECTION not in MONGO_CLIENT.collection_names():
+    MONGO_CLIENT.create_collection(MONGO_SESSIONS_COLLECTION)
 
 # check existing indexes
+DB_COLLECTION = MONGO_CLIENT[MONGO_SESSIONS_COLLECTION]
+MONGO_SESSIONS_INDEXES = DB_COLLECTION.index_information()
 if len(MONGO_SESSIONS_INDEXES) <= 1:
     DB_COLLECTION.ensure_index(
         'session_key',
